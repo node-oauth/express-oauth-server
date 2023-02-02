@@ -24,7 +24,7 @@ InMemoryCache.prototype.dump = function() {
  */
 
 InMemoryCache.prototype.getAccessToken = function(bearerToken) {
-  var tokens = this.tokens.filter(function(token) {
+  const tokens = this.tokens.filter(function(token) {
     return token.accessToken === bearerToken;
   });
 
@@ -36,7 +36,7 @@ InMemoryCache.prototype.getAccessToken = function(bearerToken) {
  */
 
 InMemoryCache.prototype.getRefreshToken = function(bearerToken) {
-  var tokens = this.tokens.filter(function(token) {
+  const tokens = this.tokens.filter(function(token) {
     return token.refreshToken === bearerToken;
   });
 
@@ -48,7 +48,7 @@ InMemoryCache.prototype.getRefreshToken = function(bearerToken) {
  */
 
 InMemoryCache.prototype.getClient = function(clientId, clientSecret) {
-  var clients = this.clients.filter(function(client) {
+  const clients = this.clients.filter(function(client) {
     return client.clientId === clientId && client.clientSecret === clientSecret;
   });
 
@@ -75,7 +75,7 @@ InMemoryCache.prototype.saveToken = function(token, client, user) {
  */
 
 InMemoryCache.prototype.getUser = function(username, password) {
-  var users = this.users.filter(function(user) {
+  const users = this.users.filter(function(user) {
     return user.username === username && user.password === password;
   });
 

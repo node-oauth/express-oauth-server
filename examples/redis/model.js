@@ -3,14 +3,14 @@
  * Module dependencies.
  */
 
-var db = require('bluebird').promisify(require('redis').createClient());
-var fmt = require('util').format;
+const db = require('bluebird').promisify(require('redis').createClient());
+const fmt = require('util').format;
 
 /**
  * Redis formats.
  */
 
-var formats = {
+const formats = {
   client: 'clients:%s',
   token: 'tokens:%s',
   user: 'users:%s'
@@ -96,7 +96,7 @@ module.exports.getUser = function(username, password) {
  */
 
 module.exports.saveToken = function(token, client, user) {
-  var data = {
+  const data = {
     accessToken: token.accessToken,
     accessTokenExpiresAt: token.accessTokenExpiresAt,
     clientId: client.id,

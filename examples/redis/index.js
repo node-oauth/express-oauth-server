@@ -3,12 +3,12 @@
  * Module dependencies.
  */
 
-var bodyParser = require('body-parser');
-var express = require('express');
-var oauthServer = require('@node-oauth/oauth2-server');
+const bodyParser = require('body-parser');
+const express = require('express');
+const oauthServer = require('@node-oauth/oauth2-server');
 
 // Create an Express application.
-var app = express();
+const app = express();
 
 // Add body parser.
 app.use(bodyParser.json());

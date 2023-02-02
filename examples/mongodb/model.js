@@ -3,8 +3,8 @@
  * Module dependencies.
  */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 /**
  * Schema definitions.
@@ -35,9 +35,9 @@ mongoose.model('OAuthUsers', new Schema({
   username: { type: String }
 }));
 
-var OAuthTokensModel = mongoose.model('OAuthTokens');
-var OAuthClientsModel = mongoose.model('OAuthClients');
-var OAuthUsersModel = mongoose.model('OAuthUsers');
+const OAuthTokensModel = mongoose.model('OAuthTokens');
+const OAuthClientsModel = mongoose.model('OAuthClients');
+const OAuthUsersModel = mongoose.model('OAuthUsers');
 
 /**
  * Get access token.
@@ -77,7 +77,7 @@ module.exports.getUser = function(username, password) {
  */
 
 module.exports.saveToken = function(token, client, user) {
-  var accessToken = new OAuthTokensModel({
+  const accessToken = new OAuthTokensModel({
     accessToken: token.accessToken,
     accessTokenExpiresOn: token.accessTokenExpiresOn,
     client : client,
@@ -98,8 +98,8 @@ module.exports.saveToken = function(token, client, user) {
     saveResult = saveResult && typeof saveResult == 'object' ? saveResult.toJSON() : saveResult;
     
     // Unsure what else points to `saveResult` in @node-oauth/oauth2-server, making copy to be safe
-    var data = new Object();
-    for( var prop in saveResult ) data[prop] = saveResult[prop];
+    const data = new Object();
+    for( const prop in saveResult ) data[prop] = saveResult[prop];
     
     // /oauth-server/lib/models/token-model.js complains if missing `client` and `user`. Creating missing properties.
     data.client = data.clientId;

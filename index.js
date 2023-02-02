@@ -4,12 +4,12 @@
  * Module dependencies.
  */
 
-var InvalidArgumentError = require('@node-oauth/oauth2-server/lib/errors/invalid-argument-error');
-var NodeOAuthServer = require('@node-oauth/oauth2-server');
-var Promise = require('bluebird');
-var Request = require('@node-oauth/oauth2-server').Request;
-var Response = require('@node-oauth/oauth2-server').Response;
-var UnauthorizedRequestError = require('@node-oauth/oauth2-server/lib/errors/unauthorized-request-error');
+const InvalidArgumentError = require('@node-oauth/oauth2-server/lib/errors/invalid-argument-error');
+const NodeOAuthServer = require('@node-oauth/oauth2-server');
+const Promise = require('bluebird');
+const Request = require('@node-oauth/oauth2-server').Request;
+const Response = require('@node-oauth/oauth2-server').Response;
+const UnauthorizedRequestError = require('@node-oauth/oauth2-server/lib/errors/unauthorized-request-error');
 
 /**
  * Constructor.
@@ -39,21 +39,21 @@ function ExpressOAuthServer(options) {
  * (See: https://tools.ietf.org/html/rfc6749#section-7)
  */
 
-ExpressOAuthServer.prototype.authenticate = function(options) {
-  var that = this;
+ExpressOAuthServer.prototype.authenticate = function (options) {
+  const that = this;
 
-  return function(req, res, next) {
-    var request = new Request(req);
-    var response = new Response(res);
+  return function (req, res, next) {
+    const request = new Request(req);
+    const response = new Response(res);
     return Promise.bind(that)
-      .then(function() {
+      .then(function () {
         return this.server.authenticate(request, response, options);
       })
-      .tap(function(token) {
+      .tap(function (token) {
         res.locals.oauth = { token: token };
         next();
       })
-      .catch(function(e) {
+      .catch(function (e) {
         return handleError.call(this, e, req, res, null, next);
       });
   };
@@ -67,27 +67,27 @@ ExpressOAuthServer.prototype.authenticate = function(options) {
  * (See: https://tools.ietf.org/html/rfc6749#section-3.1)
  */
 
-ExpressOAuthServer.prototype.authorize = function(options) {
-  var that = this;
+ExpressOAuthServer.prototype.authorize = function (options) {
+  const that = this;
 
-  return function(req, res, next) {
-    var request = new Request(req);
-    var response = new Response(res);
+  return function (req, res, next) {
+    const request = new Request(req);
+    const response = new Response(res);
 
     return Promise.bind(that)
-      .then(function() {
+      .then(function () {
         return this.server.authorize(request, response, options);
       })
-      .tap(function(code) {
+      .tap(function (code) {
         res.locals.oauth = { code: code };
         if (this.continueMiddleware) {
           next();
         }
       })
-      .then(function() {
+      .then(function () {
         return handleResponse.call(this, req, res, response);
       })
-      .catch(function(e) {
+      .catch(function (e) {
         return handleError.call(this, e, req, res, response, next);
       });
   };
@@ -101,27 +101,27 @@ ExpressOAuthServer.prototype.authorize = function(options) {
  * (See: https://tools.ietf.org/html/rfc6749#section-3.2)
  */
 
-ExpressOAuthServer.prototype.token = function(options) {
-  var that = this;
+ExpressOAuthServer.prototype.token = function (options) {
+  const that = this;
 
-  return function(req, res, next) {
-    var request = new Request(req);
-    var response = new Response(res);
+  return function (req, res, next) {
+    const request = new Request(req);
+    const response = new Response(res);
 
     return Promise.bind(that)
-      .then(function() {
+      .then(function () {
         return this.server.token(request, response, options);
       })
-      .tap(function(token) {
+      .tap(function (token) {
         res.locals.oauth = { token: token };
         if (this.continueMiddleware) {
           next();
         }
       })
-      .then(function() {
+      .then(function () {
         return handleResponse.call(this, req, res, response);
       })
-      .catch(function(e) {
+      .catch(function (e) {
         return handleError.call(this, e, req, res, response, next);
       });
   };
@@ -130,10 +130,9 @@ ExpressOAuthServer.prototype.token = function(options) {
 /**
  * Handle response.
  */
-var handleResponse = function(req, res, response) {
-
+const handleResponse = function (_req, res, response) {
   if (response.status === 302) {
-    var location = response.headers.location;
+    const location = response.headers.location;
     delete response.headers.location;
     res.set(response.headers);
     res.redirect(location);
@@ -147,8 +146,7 @@ var handleResponse = function(req, res, response) {
  * Handle error.
  */
 
-var handleError = function(e, req, res, response, next) {
-
+const handleError = function (e, req, res, response, next) {
   if (this.useErrorHandler === true) {
     next(e);
   } else {

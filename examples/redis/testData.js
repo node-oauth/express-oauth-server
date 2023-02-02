@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-var db = require('redis').createClient();
+const db = require('redis').createClient();
 
 db.multi()
   .hmset('users:username', {

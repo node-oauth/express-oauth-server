@@ -3,14 +3,14 @@
  * Module dependencies.
  */
 
-var bodyParser = require('body-parser');
-var express = require('express');
-var oauthServer = require('express-oauth-server');
-var render = require('co-views')('views');
-var util = require('util');
+const bodyParser = require('body-parser');
+const express = require('express');
+const oauthServer = require('express-oauth-server');
+const render = require('co-views')('views');
+const util = require('util');
 
 // Create an Express application.
-var app = express();
+const app = express();
 
 // Add body parser.
 app.use(bodyParser.json());
@@ -68,7 +68,7 @@ app.post('/login', function(req, res) {
   }
 
   // Successful logins should send the user back to /oauth/authorize.
-  var path = req.body.redirect || '/home';
+  const path = req.body.redirect || '/home';
 
   return res.redirect(util.format('/%s?client_id=%s&redirect_uri=%s', path, req.query.client_id, req.query.redirect_uri));
 });

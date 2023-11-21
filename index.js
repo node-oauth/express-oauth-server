@@ -6,7 +6,7 @@ const { Request, Response } = require('@node-oauth/oauth2-server');
 const InvalidArgumentError = require('@node-oauth/oauth2-server/lib/errors/invalid-argument-error');
 const UnauthorizedRequestError = require('@node-oauth/oauth2-server/lib/errors/unauthorized-request-error');
 
-class ExpressOAuthServer {
+class KoaOAuthServer {
   constructor(options) {
     this.options = options || {};
 
@@ -25,49 +25,52 @@ class ExpressOAuthServer {
   /**
    * Authentication Middleware.
    *
-   * Returns a middleware that will validate a token.
+   * @param {*} options 
+   * @returns {(ctx: import('koa').ParameterizedContext, next: import('koa').Next) => Promise<void>} A middleware that will validate a token.
    *
    * (See: https://tools.ietf.org/html/rfc6749#section-7)
    */
   authenticate(options) {
-    return async (req, res, next) => {
-      const request = new Request(req);
-      const response = new Response(res);
+    return async (ctx, next) => {
+      const request = new Request(ctx.request);
+      const response = new Response(ctx.response);
       let token;
       try {
         token = await this.server.authenticate(request, response, options);
       } catch (err) {
-        this._handleError(res, null, err, next);
+        await this._handleError(ctx, null, err, next);
         return;
       }
-      res.locals.oauth = { token };
-      return next();
+      ctx.state.oauth = { token };
+      await next();
     }
   }
 
   /**
    * Authorization Middleware.
    *
-   * Returns a middleware that will authorize a client to request tokens.
+   * @param {*} options
+   * @returns {(ctx: import('koa').ParameterizedContext, next: import('koa').Next) => Promise<void>} A middleware that will authorize a client to request tokens.
    *
    * (See: https://tools.ietf.org/html/rfc6749#section-3.1)
+   
    */
   authorize(options) {
-    return async (req, res, next) => {
-      const request = new Request(req);
-      const response = new Response(res);
+    return async (ctx, next) => {
+      const request = new Request(ctx.request);
+      const response = new Response(ctx.response);
       let code;
       try {
         code = await this.server.authorize(request, response, options);
       } catch (err) {
-        this._handleError(res, response, err, next);
+        await this._handleError(ctx, response, err, next);
         return;
       }
-      res.locals.oauth = { code };
+      ctx.state.oauth = { code };
       if (this.continueMiddleware) {
-        next();
+        await next();
       }
-      return this._handleResponse(req, res, response);
+      this._handleResponse(ctx, response);
     }
   }
 
@@ -75,70 +78,81 @@ class ExpressOAuthServer {
   /**
    * Authorization Middleware.
    *
-   * Returns a middleware that will authorize a client to request tokens.
+   * @param {*} options 
+   * @returns {(ctx: import('koa').ParameterizedContext, next: import('koa').Next) => Promise<void>} A middleware that will authorize a client to request tokens.
    *
    * (See: https://tools.ietf.org/html/rfc6749#section-3.1)
    */
   token(options) {
-    return async (req, res, next) => {
-      const request = new Request(req);
-      const response = new Response(res);
+    return async (ctx, next) => {
+      const request = new Request(ctx.request);
+      const response = new Response(ctx.response);
       let token;
       try {
         token = await this.server.token(request, response, options);
       } catch (err) {
-        this._handleError(res, response, err, next);
+        await this._handleError(ctx, response, err, next);
         return;
       }
-      res.locals.oauth = { token };
+      ctx.state.oauth = { token };
       if (this.continueMiddleware) {
-        next();
+        await next();
       }
-      return this._handleResponse(req, res, response);
+      this._handleResponse(ctx, response);
     }
   }
 
   /**
    * Grant Middleware.
    *
-   * Returns middleware that will grant tokens to valid requests.
+   * @param {import('koa').ParameterizedContext} ctx 
+   * @param {*} oauthResponse 
+   * @returns Middleware that will grant tokens to valid requests.
    *
    * (See: https://tools.ietf.org/html/rfc6749#section-3.2)
    */
-  _handleResponse(req, res, oauthResponse) {
+  _handleResponse(ctx, oauthResponse) {
+    const location = oauthResponse.headers.location;
     if (oauthResponse.status === 302) {
-      const location = oauthResponse.headers.location;
       delete oauthResponse.headers.location;
-      res.set(oauthResponse.headers);
-      res.redirect(location);
-      return;
     }
-    res.set(oauthResponse.headers);
-    res.status(oauthResponse.status).send(oauthResponse.body);
+    ctx.set(oauthResponse.headers)
+    if (oauthResponse.status === 302) {
+      ctx.redirect(location);
+    } else {
+      ctx.status = oauthResponse.status;
+      ctx.body = oauthResponse.body;
+    }
   }
 
   /**
    * Handles errors depending on the options of `this.useErrorHandler`.
    * Either calls `next()` with the error (so the application can handle it), or returns immediately a response with the error.
+   * @param {import('koa').ParameterizedContext} ctx 
+   * @param {*} oauthResponse 
+   * @param {*} error 
+   * @param {import('koa').Next} next 
+   * @returns 
    */
-  _handleError(res, oauthResponse, error, next) {
+  async _handleError(ctx, oauthResponse, error, next) {
     if (this.useErrorHandler) {
-      return next(error);
+      await next();
+      return;
     }
 
     if (oauthResponse) {
-      res.set(oauthResponse.headers);
+      ctx.set(oauthResponse.headers)
     }
 
-    res.status(error.code || 500);
+    ctx.status = error.code || 500;
 
     if (error instanceof UnauthorizedRequestError) {
-      return res.send();
+      return;
     }
 
-    return res.send({ error: error.name, error_description: error.message });
+    ctx.body = { error: error.name, error_description: error.message };
   }
 }
 
 
-module.exports = ExpressOAuthServer;
+module.exports = KoaOAuthServer;

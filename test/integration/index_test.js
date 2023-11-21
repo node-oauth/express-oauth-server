@@ -4,11 +4,11 @@
  * Module dependencies.
  */
 
-var ExpressOAuthServer = require('../../');
+var KoaOAuthServer = require('../../');
 var InvalidArgumentError = require('@node-oauth/oauth2-server/lib/errors/invalid-argument-error');
 var NodeOAuthServer = require('@node-oauth/oauth2-server');
-var bodyparser = require('body-parser');
-var express = require('express');
+var Koa = require('koa');
+var koaBody = require('koa-body').koaBody;
 var request = require('supertest');
 var should = require('should');
 var sinon = require('sinon');
@@ -17,20 +17,24 @@ var sinon = require('sinon');
  * Test `ExpressOAuthServer`.
  */
 
-describe('ExpressOAuthServer', function() {
+describe('KoaOAuthServer', function() {
+  /**
+   * @type {Koa}
+   */
   var app;
 
   beforeEach(function() {
-    app = express();
+    app = new Koa();
 
-    app.use(bodyparser.json());
-    app.use(bodyparser.urlencoded({ extended: false }));
+    app.use(koaBody({
+      urlencoded: true,
+    }));
   });
 
   describe('constructor()', function() {
     it('should throw an error if `model` is missing', function() {
       try {
-        new ExpressOAuthServer({});
+        new KoaOAuthServer({});
 
         should.fail();
       } catch (e) {
@@ -40,7 +44,7 @@ describe('ExpressOAuthServer', function() {
     });
 
     it('should set the `server`', function() {
-      var oauth = new ExpressOAuthServer({ model: {} });
+      var oauth = new KoaOAuthServer({ model: {} });
 
       oauth.server.should.be.an.instanceOf(NodeOAuthServer);
     });
@@ -48,7 +52,7 @@ describe('ExpressOAuthServer', function() {
 
   describe('authenticate()', function() {
     it('should return an error if `model` is empty', function(done) {
-      var oauth = new ExpressOAuthServer({ model: {} });
+      var oauth = new KoaOAuthServer({ model: {} });
 
       app.use(oauth.authenticate());
 
@@ -68,14 +72,14 @@ describe('ExpressOAuthServer', function() {
           return token;
         }
       };
-      var oauth = new ExpressOAuthServer({ model: model });
+      var oauth = new KoaOAuthServer({ model: model });
 
       app.use(oauth.authenticate());
 
-      app.use(function(req, res, next) {
-        res.send();
+      app.use(async (ctx, next) => {
+        ctx.status = 200;
 
-        next();
+        await next();
       });
 
       request(app.listen())
@@ -94,13 +98,14 @@ describe('ExpressOAuthServer', function() {
           return token;
         }
       };
-      var oauth = new ExpressOAuthServer({ model: model });
+      var oauth = new KoaOAuthServer({ model: model });
 
       app.use(oauth.authenticate());
       
-      var spy = sinon.spy(function(req, res, next) {
-        res.locals.oauth.token.should.equal(token);
-        res.send(token);
+      var spy = sinon.spy(async (ctx, next) => {
+        ctx.state.oauth.token.should.equal(token);
+        ctx.status = 200;
+        ctx.body = token;
         next();
       });
       app.use(spy);
@@ -132,13 +137,13 @@ describe('ExpressOAuthServer', function() {
           return code;
         }
       };
-      var oauth = new ExpressOAuthServer({ model: model, continueMiddleware: true });
+      var oauth = new KoaOAuthServer({ model: model, continueMiddleware: true });
 
       app.use(oauth.authorize());
 
-      var spy = sinon.spy(function(req, res, next) {
-        res.locals.oauth.code.should.equal(code);
-        next();
+      var spy = sinon.spy(async (ctx, next) => {
+        ctx.state.oauth.code.should.equal(code);
+        await next();
       });
       app.use(spy);
 
@@ -164,7 +169,7 @@ describe('ExpressOAuthServer', function() {
           return {};
         }
       };
-      var oauth = new ExpressOAuthServer({ model: model });
+      var oauth = new KoaOAuthServer({ model: model });
 
       app.use(oauth.authorize());
 
@@ -191,7 +196,7 @@ describe('ExpressOAuthServer', function() {
           return { authorizationCode: 123 };
         }
       };
-      var oauth = new ExpressOAuthServer({ model: model });
+      var oauth = new KoaOAuthServer({ model: model });
 
       app.use(oauth.authorize());
 
@@ -204,7 +209,7 @@ describe('ExpressOAuthServer', function() {
     });
 
     it('should return an error if `model` is empty', function(done) {
-      var oauth = new ExpressOAuthServer({ model: {} });
+      var oauth = new KoaOAuthServer({ model: {} });
 
       app.use(oauth.authorize());
 
@@ -229,13 +234,12 @@ describe('ExpressOAuthServer', function() {
           return token;
         }
       };
-      var oauth = new ExpressOAuthServer({ model: model, continueMiddleware: true });
+      var oauth = new KoaOAuthServer({ model: model, continueMiddleware: true });
 
       app.use(oauth.token());
-      var spy = sinon.spy(function(req, res, next) {
-        res.locals.oauth.token.should.equal(token);
-
-        next();
+      var spy = sinon.spy(async (ctx, next) => {
+        ctx.state.oauth.token.should.equal(token);
+        await next();
       });
       app.use(spy);
 
@@ -262,7 +266,7 @@ describe('ExpressOAuthServer', function() {
         }
       };
       sinon.spy();
-      var oauth = new ExpressOAuthServer({ model: model, continueMiddleware: true });
+      var oauth = new KoaOAuthServer({ model: model, continueMiddleware: true });
 
       app.use(oauth.token());
       request(app.listen())
@@ -284,7 +288,7 @@ describe('ExpressOAuthServer', function() {
           return { accessToken: 'foobar', client: {}, refreshToken: 'foobiz', user: {} };
         }
       };
-      var oauth = new ExpressOAuthServer({ model: model });
+      var oauth = new KoaOAuthServer({ model: model });
 
       app.use(oauth.token());
 
@@ -296,7 +300,7 @@ describe('ExpressOAuthServer', function() {
     });
 
     it('should return an error if `model` is empty', function(done) {
-      var oauth = new ExpressOAuthServer({ model: {} });
+      var oauth = new KoaOAuthServer({ model: {} });
 
       app.use(oauth.token());
 

@@ -4,44 +4,41 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.3
 
-import * as express from "express";
+import * as koa from 'koa';
 import * as OAuth2Server from "@node-oauth/oauth2-server";
 
-declare namespace ExpressOAuthServer {
+declare namespace KoaOAuthServer {
   interface Options extends OAuth2Server.ServerOptions {
     useErrorHandler?: boolean | undefined;
     continueMiddleware?: boolean | undefined;
   }
 }
 
-declare class ExpressOAuthServer {
+declare class KoaOAuthServer {
   server: OAuth2Server;
 
-  constructor(options: ExpressOAuthServer.Options);
+  constructor(options: KoaOAuthServer.Options);
 
   authenticate(
     options?: OAuth2Server.AuthenticateOptions
   ): (
-    request: express.Request,
-    response: express.Response,
-    next: express.NextFunction
-  ) => Promise<OAuth2Server.Token>;
+    ctx: koa.ParameterizedContext,
+    next: koa.Next,
+  ) => Promise<void>;
 
   authorize(
     options?: OAuth2Server.AuthorizeOptions
   ): (
-    request: express.Request,
-    response: express.Response,
-    next: express.NextFunction
-  ) => Promise<OAuth2Server.AuthorizationCode>;
+    ctx: koa.ParameterizedContext,
+    next: koa.Next,
+  ) => Promise<void>;
 
   token(
     options?: OAuth2Server.TokenOptions
   ): (
-    request: express.Request,
-    response: express.Response,
-    next: express.NextFunction
-  ) => Promise<OAuth2Server.Token>;
+    ctx: koa.ParameterizedContext,
+    next: koa.Next,
+  ) => Promise<void>;
 }
 
-export = ExpressOAuthServer;
+export = KoaOAuthServer;

@@ -7,7 +7,7 @@
 var ExpressOAuthServer = require('../../');
 var Request = require('@node-oauth/oauth2-server').Request;
 var Response = require('@node-oauth/oauth2-server').Response;
-var express = require('express');
+var Koa = require('koa');
 var request = require('supertest');
 var sinon = require('sinon');
 var should = require('should');
@@ -16,11 +16,14 @@ var should = require('should');
  * Test `ExpressOAuthServer`.
  */
 
-describe('ExpressOAuthServer', function() {
+describe('KoaOAuthServer', function() {
+  /**
+   * @type {Koa}
+   */
   var app;
 
   beforeEach(function() {
-    app = express();
+    app = new Koa();
   });
 
   describe('authenticate()', function() {
@@ -109,7 +112,7 @@ describe('ExpressOAuthServer', function() {
           should.not.exist(oauth.server.authorize.firstCall.args[2]);
           oauth.server.authorize.restore();
           nextMiddleware.called.should.be.true();
-          nextMiddleware.args[0].length.should.eql(3);
+          nextMiddleware.args[0].length.should.eql(2);
           done();
         });
     });
@@ -178,7 +181,7 @@ describe('ExpressOAuthServer', function() {
           should.not.exist(oauth.server.token.firstCall.args[2]);
           oauth.server.token.restore();
           nextMiddleware.called.should.be.true();
-          nextMiddleware.args[0].length.should.eql(3);
+          nextMiddleware.args[0].length.should.eql(2);
           done();
         });
     });

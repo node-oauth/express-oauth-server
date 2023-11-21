@@ -1,27 +1,27 @@
 {
-  "name": "@node-oauth/express-oauth-server",
+  "name": "@heyrepo/koa-oauth-server",
   "version": "3.0.1",
-  "description": "OAuth provider for express",
+  "description": "OAuth provider for koa",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
     "lint": "npx eslint .",
     "lint:fix": "npx eslint . --fix",
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha 'test/**/*_test.js'",
+    "test": "$env:NODE_ENV=test & ./node_modules/.bin/mocha 'test/**/*_test.js'",
     "test-debug": "NODE_ENV=test ./node_modules/.bin/mocha  --inspect --debug-brk 'test/**/*_test.js'",
     "test:watch": "NODE_ENV=test ./node_modules/.bin/mocha --watch 'test/**/*_test.js'",
     "test:coverage": "NODE_ENV=test nyc --reporter=html --reporter=lcov --reporter=text ./node_modules/.bin/mocha 'test/**/*_test.js'"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/node-oauth/express-oauth-server"
+    "url": "git://github.com/HeyRepo/koa-oauth-server"
   },
   "files": [
     "index.js",
     "index.d.ts"
   ],
   "keywords": [
-    "express",
+    "koa",
     "oauth",
     "oauth2"
   ],
@@ -32,7 +32,8 @@
   "license": "MIT",
   "dependencies": {
     "@node-oauth/oauth2-server": "^4.3.0",
-    "express": "^4.18.2"
+    "koa": "^2.14.2",
+    "koa-body": "^6.0.1"
   },
   "devDependencies": {
     "body-parser": "^1.20.2",

@@ -2,11 +2,11 @@
  * Module dependencies.
  */
 
-const InvalidArgumentError = require('@node-oauth/oauth2-server/lib/errors/invalid-argument-error');
-const NodeOAuthServer = require('@node-oauth/oauth2-server');
-const Request = require('@node-oauth/oauth2-server').Request;
-const Response = require('@node-oauth/oauth2-server').Response;
-const UnauthorizedRequestError = require('@node-oauth/oauth2-server/lib/errors/unauthorized-request-error');
+const InvalidArgumentError = require("@node-oauth/oauth2-server/lib/errors/invalid-argument-error");
+const NodeOAuthServer = require("@node-oauth/oauth2-server");
+const Request = require("@node-oauth/oauth2-server").Request;
+const Response = require("@node-oauth/oauth2-server").Response;
+const UnauthorizedRequestError = require("@node-oauth/oauth2-server/lib/errors/unauthorized-request-error");
 
 /**
  * Complete, compliant and well tested express wrapper for @node-oauth/oauth2-server in node.js.
@@ -56,7 +56,7 @@ class ExpressOAuthServer {
    */
   constructor(options = {}) {
     if (!options.model) {
-      throw new InvalidArgumentError('Missing parameter: `model`');
+      throw new InvalidArgumentError("Missing parameter: `model`");
     }
 
     this.useErrorHandler = !!options.useErrorHandler;
@@ -78,17 +78,20 @@ class ExpressOAuthServer {
    * @return {function(req, res, next):Promise.<Object>}
    */
   authenticate(options) {
-    const fn = async function(req, res, next) {
+    const fn = async function (req, res, next) {
       const request = new Request(req);
       const response = new Response(res);
 
-      let token
+      let token;
 
       try {
         token = await this.server.authenticate(request, response, options);
       } catch (e) {
         return handleError.call(this, e, req, res, null, next);
       }
+
+      // Set header on express response
+      res.set(response.headers);
 
       res.locals.oauth = { token };
       next();
@@ -107,11 +110,11 @@ class ExpressOAuthServer {
    * @return {function(req, res, next):Promise.<Object>}
    */
   authorize(options) {
-    const fn = async function(req, res, next) {
+    const fn = async function (req, res, next) {
       const request = new Request(req);
       const response = new Response(res);
 
-      let code
+      let code;
 
       try {
         code = await this.server.authorize(request, response, options);
@@ -140,11 +143,11 @@ class ExpressOAuthServer {
    * @return {function(req, res, next):Promise.<Object>}
    */
   token(options) {
-    const fn = async function(req, res, next) {
+    const fn = async function (req, res, next) {
       const request = new Request(req);
       const response = new Response(res);
 
-      let token
+      let token;
 
       try {
         token = await this.server.token(request, response, options);
@@ -168,7 +171,7 @@ class ExpressOAuthServer {
  * Handle response.
  * @private
  */
-const handleResponse = function(req, res, response) {
+const handleResponse = function (req, res, response) {
   if (response.status === 302) {
     const location = response.headers.location;
     delete response.headers.location;
@@ -184,7 +187,7 @@ const handleResponse = function(req, res, response) {
  * Handle error.
  * @private
  */
-const handleError = function(e, req, res, response, next) {
+const handleError = function (e, req, res, response, next) {
   if (this.useErrorHandler === true) {
     next(e);
   } else {

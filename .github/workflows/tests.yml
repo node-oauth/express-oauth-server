@@ -6,7 +6,7 @@ name: Tests
 on:
   push:
     branches:
-      - master    # allthough  master is push protected we still keep it
+      - master    # although  master is push protected we still keep it
       - development
   pull_request:   # runs on all PR
 
@@ -16,18 +16,19 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [16, 18, 20]
+        # we support all LTS that are still maintained
+        node: [20, 22, 24]
     steps:
     - name: Checkout ${{ matrix.node }}
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
 
     - name: Setup node ${{ matrix.node }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ matrix.node }}
 
     - name: Cache dependencies ${{ matrix.node }}
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.npm
         key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}

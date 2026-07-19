@@ -1,6 +1,6 @@
 {
   "name": "@node-oauth/express-oauth-server",
-  "version": "4.1.5",
+  "version": "4.2.0",
   "description": "OAuth provider for express",
   "main": "index.js",
   "typings": "index.d.ts",
@@ -34,21 +34,21 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@node-oauth/oauth2-server": "^5.2.0"
+    "@node-oauth/oauth2-server": "^5.3.0"
   },
   "peerDependencies": {
     "express": "*"
   },
   "devDependencies": {
-    "body-parser": "^1.20.2",
+    "body-parser": "^2.3.0",
     "eslint": "^8.57.1",
-    "express": "^5.0.1",
-    "jsdoc": "^4.0.4",
-    "mocha": "^11.1.0",
-    "nyc": "^17.1.0",
+    "express": "^5.2.1",
+    "jsdoc": "^4.0.5",
+    "mocha": "^11.7.6",
+    "nyc": "^18.0.0",
     "should": "^13.2.3",
-    "sinon": "^19.0.2",
-    "supertest": "^7.0.0"
+    "sinon": "^22.0.0",
+    "supertest": "^7.2.2"
   },
   "engines": {
     "node": ">=16"
